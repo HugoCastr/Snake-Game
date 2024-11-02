@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
 public class Tabuleiro extends JFrame {
 
@@ -22,6 +23,9 @@ public class Tabuleiro extends JFrame {
     public Tabuleiro() {
 
         larguraTabuleiro = alturaTabuleiro = 400;
+
+        // ArrayList<Quadrado> corpo = new ArrayList<Quadrado>();
+        // Quadrado novoQuadrado = new Quadrado(10, 10, Color.BLACK);
 
         cobra = new Quadrado(10, 10, Color.BLACK);
         cobra.x = larguraTabuleiro / 2;
@@ -121,21 +125,34 @@ public class Tabuleiro extends JFrame {
 
     }
 
-    private void Maca() {
-        int min = 10; // define o minimo da largura e altura do tabuleiro
+    private void Maca() { // completo
+        int min = 20; // define o minimo da largura e altura do tabuleiro
         int max = alturaTabuleiro - 20; // define o maximo da largura e altura do tabuleiro
         obstaculo = new Quadrado(10, 10, Color.red); // cria um novo obstaculo
         obstaculo.x = (int) (Math.random() * (max - min + 1)) - min; // randomiza a posicao x
         obstaculo.y = (int) (Math.random() * (max - min + 1)) - min; // randomiza a posicao y
     }
 
-    private void ColisaoComMaca() {
-        if ((cobra.x < obstaculo.x + 4 && cobra.x > obstaculo.x - 4) && // verfica se a cobra esta a 4 pixels a direita ou a esquerda da maca
-                (cobra.y < obstaculo.y + 4 && cobra.y > obstaculo.y - 4)) { // verfica se a cobra esta a 4 pixels acima ou abaixo da maca
+    private void ColisaoComMaca() { // completo
+        if ((cobra.x < obstaculo.x + 4 && cobra.x > obstaculo.x - 4) && // verfica se a cobra esta a 4 pixels a direita
+                                                                        // ou a esquerda da maca
+                (cobra.y < obstaculo.y + 4 && cobra.y > obstaculo.y - 4)) { // verfica se a cobra esta a 4 pixels acima
+                                                                            // ou abaixo da maca
 
             placar++; // incrementa o placar
-            Maca(); // e cria uma nova maca no tabuleiro
+            Maca(); // chama a funcao para e cria uma nova maca no tabuleiro
+            Aumentar(); // chama a funcao para aumentar o tamanho da cobra
         }
+    }
+
+    private void Aumentar() { // em andamento
+        // ArrayList<Quadrado> corpo = new ArrayList<Quadrado>();
+        // Quadrado novoQuadrado = new Quadrado(10, 10, Color.BLACK);
+
+        // corpo.add(novoQuadrado);
+        // arrumar uma maneira no qual adicone mais um quadro 
+        // e como vai funcionar para ele seguir
+
     }
 
     private void Iniciar() {
@@ -177,7 +194,8 @@ public class Tabuleiro extends JFrame {
         cobra.y = alturaTabuleiro / 2;
         Maca(); // cria uma nova maca
         placar = 0; // reseta o placar
-            
+        // terminar isso
+        // fazer com que a cobra pare no meio apos reiniciar
         JOptionPane.showMessageDialog(this, "Jogo Reiniciado!", "Reset", JOptionPane.INFORMATION_MESSAGE);
     }
 
