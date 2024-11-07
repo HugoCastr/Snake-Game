@@ -25,6 +25,7 @@ public class Tabuleiro extends JFrame {
     private boolean pausar = true;
     private int modo = 1;
     private String dificuldade = "Sem Borda";
+    private int palcarRefencia;
 
     public Tabuleiro() {
 
@@ -65,7 +66,7 @@ public class Tabuleiro extends JFrame {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
 
-                for (Quadrado quadrado : corpo) {
+                for (Quadrado quadrado : corpo) { // um laco for para desenhar o corpo da cobra
                     g.setColor(quadrado.cor);
                     g.fillRect(quadrado.x, quadrado.y, quadrado.altura, quadrado.largura);
                 }
@@ -141,69 +142,67 @@ public class Tabuleiro extends JFrame {
 
     }
 
-    private void Maca() { // completo
-        // int min = 40; // define o minimo da largura e altura do tabuleiro
-        // int max = alturaTabuleiro - min; // define o maximo da largura e altura do
-        // tabuleiro
-        // obstaculo = new Quadrado(10, 10, Color.red); // cria um novo obstaculo
-        // obstaculo.x = (int) (Math.random() * (max - min + 1)) - min; // randomiza a
-        // posicao x
-        // obstaculo.y = (int) (Math.random() * (max - min + 1)) - min; // randomiza a
-        // posicao y
-
+    private void Randomizar(){
         int min = 0; // início do tabuleiro
         int max = larguraTabuleiro - 10; // limite máximo na horizontal
         int maxY = alturaTabuleiro - 10; // limite máximo na vertical
 
-        obstaculo = new Quadrado(10, 10, Color.red);
+        x = (int) (Math.random() * (max - min + 1)) + min; // realiza o calculo de randomizacao do x
+        y = (int) (Math.random() * (maxY - min + 1)) + min; // realiza o calculo de randomizacao do y
+    } 
 
-        // Gera uma posição aleatória para a maçã
-        obstaculo.x = (int) (Math.random() * (max - min + 1)) + min;
-        obstaculo.y = (int) (Math.random() * (maxY - min + 1)) + min;
+    private void Maca() { 
+        obstaculo = new Quadrado(10, 10, Color.red);  // cria um novo obstaculo
+
+        Randomizar(); // chama o metodo randomizar
+
+        obstaculo.x = x; // define a posicao x do obstaculo para o x gerado randomizado
+        obstaculo.y = y; // define a posicao y do obstaculo para o y gerado randomizado
     }
 
     private void ColisaoComMaca() { // completo
         if ((cobra.x < obstaculo.x + 4 && cobra.x > obstaculo.x - 4) && // verfica se a cobra esta a 4 pixels a direita
-                                                                        // ou a esquerda da maca
+                                                                        // e a esquerda da maca
                 (cobra.y < obstaculo.y + 4 && cobra.y > obstaculo.y - 4)) { // verfica se a cobra esta a 4 pixels acima
-                                                                            // ou abaixo da maca
+                                                                            // e abaixo da maca
 
             placar++; // incrementa o placar
-            Aumentar(); // chama a funcao para aumentar o tamanho da cobra
-            Maca(); // chama a funcao para e cria uma nova maca no tabuleiro
+            VelocidadeJogo(); // chama o metodo para aumetar a velocidade do jogo
+            Aumentar(); // chama o metodo para aumentar o tamanho da cobra
+            Maca(); // chama o metodo para e cria uma nova maca no tabuleiro
         }
     }
 
     private void Aumentar() {
-        for (int i = 5; i > 0; i--) {
-            corpo.add(new Quadrado(10, 10, Color.BLACK)); // Adiciona um novo quadrado na cauda
+        for (int i = 5; i > 0; i--) { // um laco for para adicionar 5 quadrados, para ter mudanca visual no tamanho da cobra
+            corpo.add(new Quadrado(10, 10, Color.BLACK)); // adiciona um novo quadrado no fim da lista
         }
 
     }
 
     private void ColisaoCobra() {
-        for (int i = 1; i < corpo.size(); i++) {
-            Quadrado cabeca = corpo.get(0);
-            if (cabeca.x == corpo.get(i).x && cabeca.y == corpo.get(i).y) {
-                GameOver();
+        for (int i = 1; i < corpo.size(); i++) { // um laco for com o tamanho do dos elemntos dentro da ArrayList, comecando do segundo elemento
+            Quadrado cabeca = corpo.get(0); // pega a posicao da cabeca
+            if (cabeca.x == corpo.get(i).x && cabeca.y == corpo.get(i).y) { // compara se as posicoes sao igual, tanto x quanto y
+                GameOver(); // chama o metodo game over
                 return;
             }
         }
     }
 
     private void MovimentoDaCobra() { // em andamento
-        for (int i = corpo.size() - 1; i > 0; i--) {
-            Quadrado quadradoAtual = corpo.get(i);
-            Quadrado quadradoAnterior = corpo.get(i - 1);
+        for (int i = corpo.size() - 1; i > 0; i--) { // um laco for com o tamanho da cobra comecando do ultimo indice
+            Quadrado quadradoAtual = corpo.get(i); // um auxiliar que salva a posicao do quadrado atual
+            Quadrado quadradoAnterior = corpo.get(i - 1); // outro auxiliar que salva a posicao proximo quadrado
 
-            quadradoAtual.x = quadradoAnterior.x;
-            quadradoAtual.y = quadradoAnterior.y;
+            quadradoAtual.x = quadradoAnterior.x; // define a posicao x do quadrado atual para a do quadrado anterior
+            quadradoAtual.y = quadradoAnterior.y; // deifne a posicao y do quadrado atual para a do quadrado anterior
         }
 
-        // Move a cabeça para a direção escolhida
-        Quadrado cabeca = corpo.get(0);
+        
+        Quadrado cabeca = corpo.get(0); // pega a posicao da cabeca pegando o indice 0 sendo o primeiro
 
-        switch (direcao) {
+        switch (direcao) { 
             case "esquerda":
                 cabeca.x -= incremento;
                 break;
@@ -217,33 +216,26 @@ public class Tabuleiro extends JFrame {
                 cabeca.y += incremento;
                 break;
         }
-        ColisaoCobra();
+        ColisaoCobra(); // chama o metodo para verificar a colisao com a cobra
     }
-    private void VelocidadeJogo(){
-        if (placar % 10 == 0){
-            tempoAtualizacao =- 10;
+
+    private void VelocidadeJogo(){ // em andamento
+        palcarRefencia ++; // incrementa em 1
+        if (palcarRefencia  == 10 && tempoAtualizacao > 100){ // caso o placar aumente 10 e o tempo de atualizacao seja maior que 100
+            tempoAtualizacao =- 10; // reduz o valor do tempo de atualizacao em 10
         }
     }
+
     private void AtrevesarBorda() {
         if (cobra.x < 0) { // verifica se saiu pela esquerda
-            cobra.x = larguraTabuleiro;
+            cobra.x = larguraTabuleiro; // muda a posicao x da cobra para  a largura do tabuleiro
         } else if (cobra.x > larguraTabuleiro) { // verifica se saiu pela direita
-            cobra.x = 0;
+            cobra.x = 0; // muda a posicao x da cobra para  0
         }
         if (cobra.y < 0) { // verifica se saiu por cima
-            cobra.y = alturaTabuleiro;
+            cobra.y = alturaTabuleiro; // muda a posicao y da cobra para  a altura do tabuleiro
         } else if (cobra.y > alturaTabuleiro) { // verifica se saiu por baixo
-            cobra.y = 0;
-        }
-        if (cobra.x < 0) { // verifica se saiu pela esquerda
-            cobra.x = larguraTabuleiro;
-        } else if (cobra.x > larguraTabuleiro) { // verifica se saiu pela direita
-            cobra.x = 0;
-        }
-        if (cobra.y < 0) { // verifica se saiu por cima
-            cobra.y = alturaTabuleiro;
-        } else if (cobra.y > alturaTabuleiro) { // verifica se saiu por baixo
-            cobra.y = 0;
+            cobra.y = 0; // muda a posicao y da cobra para 0
         }
     }
 
@@ -253,7 +245,7 @@ public class Tabuleiro extends JFrame {
                 || // ou
                 (cobra.y < 0 || cobra.y > alturaTabuleiro)) { // verifica se a cobra esta no eixo y igual a 0 ou o
                                                               // equivalente ao tamanho do tabuleiro
-            GameOver(); // chama a funcao para informar a perca
+            GameOver(); // chama o metodo para informar a perca
         }
     }
 
@@ -267,7 +259,7 @@ public class Tabuleiro extends JFrame {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                VelocidadeJogo();
+                // VelocidadeJogo();
                 MovimentoDaCobra();
                 ColisaoComMaca();
                 switch (modo) {
@@ -292,9 +284,10 @@ public class Tabuleiro extends JFrame {
         cobra.x = larguraTabuleiro / 2; // faz com que a cobra retorne ao meio do tabuleiro
         cobra.y = alturaTabuleiro / 2;
         corpo.add(cobra); // adiciona na arraylist
-        Maca(); // cria uma nova maca
+        Maca(); // chama o metodo para criar uma nova maca
+        tempoAtualizacao = 200; // reinicia o valor para 200 
         placar = 0; // reseta o placar
-        Iniciar();
+        Iniciar(); // chama o metodo para inciar
         
 
         JOptionPane.showMessageDialog(this, "Jogo Reiniciado!", "Reset", JOptionPane.INFORMATION_MESSAGE);
@@ -302,14 +295,14 @@ public class Tabuleiro extends JFrame {
 
     private void Pausar() {
         // Interrompe o while(!reset) do método Iniciar() pausando o jogo.
-        pausar = (!pausar);
+        pausar = (!pausar); // faz com que inverta o valor booleano da classe pausar
 
         JOptionPane.showMessageDialog(this, "Jogo Pausado!", "Pause", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void GameOver() {
         JOptionPane.showMessageDialog(this, "Gamer Over", "A", JOptionPane.INFORMATION_MESSAGE);
-        Reiniciar();
+        Reiniciar(); // chama o metodo de reiniciar 
     }
 
     private void DificuldadeJogo() { // em andamento
@@ -319,13 +312,13 @@ public class Tabuleiro extends JFrame {
             modo = 1; // define o valor para 1 novamente
         }
         switch (modo) { // define o que vai estar escrito no modo de jogo
-            case 1 -> dificuldade = "Sem Borda";
+            case 1 -> dificuldade = "Sem Borda"; // se o modo for 1 define o que esta escrito para sem borda
 
-            case 2 -> dificuldade = "Com Borda";
+            case 2 -> dificuldade = "Com Borda"; // se o modo for 2 define o que esta escrito para com borda
 
         }
 
-        modeButton.setText(dificuldade); // atualiza o texto do botao com a nova dificuldade
+        modeButton.setText(dificuldade); // atualiza o texto do botao com o modo
     }
 
     public static void main(String[] args) {
