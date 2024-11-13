@@ -15,7 +15,7 @@ public class Tabuleiro extends JFrame {
     private JTextField placarField;
     private int x, y;
     private String direcao = "direita";
-    private long tempoAtualizacao = 200;
+    private long tempoAtualizacao = 50;
     private int incremento = 2;
     private Quadrado obstaculo, cobra;
     private int larguraTabuleiro, alturaTabuleiro;
@@ -25,20 +25,13 @@ public class Tabuleiro extends JFrame {
     private boolean pausar = true;
     private int modo = 1;
     private String dificuldade = "Sem Borda";
-    private int palcarRefencia;
+    private int palcarRefencia = 0;
 
     public Tabuleiro() {
 
         larguraTabuleiro = alturaTabuleiro = 400;
 
         corpo = new ArrayList<>(); // cria a ArryList
-        cobra = new Quadrado(10, 10, Color.BLACK); // cria a cobra
-        corpo.add(cobra); // adiciona a cobra na ArryList
-
-        cobra.x = larguraTabuleiro / 2;
-        cobra.y = alturaTabuleiro / 2;
-
-        Maca(); // cria a maca inicial
 
         setTitle("Jogo da Cobrinha");
         setSize(alturaTabuleiro, larguraTabuleiro + 30);
@@ -66,13 +59,17 @@ public class Tabuleiro extends JFrame {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
 
+                g.setColor(new Color(2, 51, 36)); // define e cor do fundo
+                g.fillRect(0, 0, larguraTabuleiro, alturaTabuleiro); // pinta o fundo
+
                 for (Quadrado quadrado : corpo) { // um laco for para desenhar o corpo da cobra
                     g.setColor(quadrado.cor);
-                    g.fillRect(quadrado.x, quadrado.y, quadrado.altura, quadrado.largura);
+                    g.fillOval(quadrado.x, quadrado.y, quadrado.altura, quadrado.largura);
                 }
 
                 g.setColor(obstaculo.cor);
                 g.fillRect(obstaculo.x, obstaculo.y, obstaculo.largura, obstaculo.altura);
+
             }
         };
 
@@ -142,17 +139,27 @@ public class Tabuleiro extends JFrame {
 
     }
 
-    private void Randomizar(){
+    private void ComecoDoJogo() {
+        cobra = new Quadrado(10, 10, Color.GREEN); // cria a cobra
+        corpo.add(cobra); // adiciona a cobra na ArryList
+
+        cobra.x = larguraTabuleiro / 2; // deixa a posicao x da cobra no meio do tabuleiro
+        cobra.y = alturaTabuleiro / 2; // deixa a posicao y da cobra no meio do tabuleiro
+
+        Maca(); // cria a maca inicial
+    }
+
+    private void Randomizar() {
         int min = 0; // início do tabuleiro
         int max = larguraTabuleiro - 10; // limite máximo na horizontal
         int maxY = alturaTabuleiro - 10; // limite máximo na vertical
 
         x = (int) (Math.random() * (max - min + 1)) + min; // realiza o calculo de randomizacao do x
         y = (int) (Math.random() * (maxY - min + 1)) + min; // realiza o calculo de randomizacao do y
-    } 
+    }
 
-    private void Maca() { 
-        obstaculo = new Quadrado(10, 10, Color.red);  // cria um novo obstaculo
+    private void Maca() {
+        obstaculo = new Quadrado(10, 10, Color.RED); // cria um novo obstaculo
 
         Randomizar(); // chama o metodo randomizar
 
@@ -174,16 +181,19 @@ public class Tabuleiro extends JFrame {
     }
 
     private void Aumentar() {
-        for (int i = 5; i > 0; i--) { // um laco for para adicionar 5 quadrados, para ter mudanca visual no tamanho da cobra
-            corpo.add(new Quadrado(10, 10, Color.BLACK)); // adiciona um novo quadrado no fim da lista
+        for (int i = 5; i > 0; i--) { // um laco for para adicionar 5 quadrados, para ter mudanca visual no tamanho da
+                                      // cobra
+            corpo.add(new Quadrado(10, 10, Color.GREEN)); // adiciona um novo quadrado no fim da lista
         }
 
     }
 
     private void ColisaoCobra() {
-        for (int i = 1; i < corpo.size(); i++) { // um laco for com o tamanho do dos elemntos dentro da ArrayList, comecando do segundo elemento
+        for (int i = 1; i < corpo.size(); i++) { // um laco for com o tamanho do dos elemntos dentro da ArrayList,
+                                                 // comecando do segundo elemento
             Quadrado cabeca = corpo.get(0); // pega a posicao da cabeca
-            if (cabeca.x == corpo.get(i).x && cabeca.y == corpo.get(i).y) { // compara se as posicoes sao igual, tanto x quanto y
+            if (cabeca.x == corpo.get(i).x && cabeca.y == corpo.get(i).y) { // compara se as posicoes sao igual, tanto x
+                                                                            // quanto y
                 GameOver(); // chama o metodo game over
                 return;
             }
@@ -199,10 +209,9 @@ public class Tabuleiro extends JFrame {
             quadradoAtual.y = quadradoAnterior.y; // deifne a posicao y do quadrado atual para a do quadrado anterior
         }
 
-        
         Quadrado cabeca = corpo.get(0); // pega a posicao da cabeca pegando o indice 0 sendo o primeiro
 
-        switch (direcao) { 
+        switch (direcao) {
             case "esquerda":
                 cabeca.x -= incremento;
                 break;
@@ -219,21 +228,22 @@ public class Tabuleiro extends JFrame {
         ColisaoCobra(); // chama o metodo para verificar a colisao com a cobra
     }
 
-    private void VelocidadeJogo(){ // em andamento
-        palcarRefencia ++; // incrementa em 1
-        if (palcarRefencia  == 10 && tempoAtualizacao > 100){ // caso o placar aumente 10 e o tempo de atualizacao seja maior que 100
-            tempoAtualizacao =- 10; // reduz o valor do tempo de atualizacao em 10
+    private void VelocidadeJogo() { // em andamento
+        if (palcarRefencia == 5 && tempoAtualizacao > 10) { // caso o placar aumente 10 e o tempo de atualizacao seja
+                                                             // maior que 100
+            tempoAtualizacao = -2; // reduz o valor do tempo de atualizacao em 10
+            palcarRefencia = 0; // reseta a referecia do placar
         }
     }
 
     private void AtrevesarBorda() {
         if (cobra.x < 0) { // verifica se saiu pela esquerda
-            cobra.x = larguraTabuleiro; // muda a posicao x da cobra para  a largura do tabuleiro
+            cobra.x = larguraTabuleiro; // muda a posicao x da cobra para a largura do tabuleiro
         } else if (cobra.x > larguraTabuleiro) { // verifica se saiu pela direita
-            cobra.x = 0; // muda a posicao x da cobra para  0
+            cobra.x = 0; // muda a posicao x da cobra para 0
         }
         if (cobra.y < 0) { // verifica se saiu por cima
-            cobra.y = alturaTabuleiro; // muda a posicao y da cobra para  a altura do tabuleiro
+            cobra.y = alturaTabuleiro; // muda a posicao y da cobra para a altura do tabuleiro
         } else if (cobra.y > alturaTabuleiro) { // verifica se saiu por baixo
             cobra.y = 0; // muda a posicao y da cobra para 0
         }
@@ -250,7 +260,7 @@ public class Tabuleiro extends JFrame {
     }
 
     private void Iniciar() {
-
+        ComecoDoJogo();
         new Thread(() -> {
             while (pausar) {
                 try {
@@ -259,7 +269,6 @@ public class Tabuleiro extends JFrame {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                // VelocidadeJogo();
                 MovimentoDaCobra();
                 ColisaoComMaca();
                 switch (modo) {
@@ -278,17 +287,10 @@ public class Tabuleiro extends JFrame {
     }
 
     private void Reiniciar() {
-        // Adicione aqui a lógica para reiniciar o jogo
         corpo.clear(); // limpa o a arrylist
-        cobra = new Quadrado(10, 10, Color.BLACK); // cria um novo quadrado
-        cobra.x = larguraTabuleiro / 2; // faz com que a cobra retorne ao meio do tabuleiro
-        cobra.y = alturaTabuleiro / 2;
-        corpo.add(cobra); // adiciona na arraylist
-        Maca(); // chama o metodo para criar uma nova maca
-        tempoAtualizacao = 200; // reinicia o valor para 200 
+        tempoAtualizacao = 100; // reinicia o valor para 200
         placar = 0; // reseta o placar
         Iniciar(); // chama o metodo para inciar
-        
 
         JOptionPane.showMessageDialog(this, "Jogo Reiniciado!", "Reset", JOptionPane.INFORMATION_MESSAGE);
     }
@@ -302,20 +304,19 @@ public class Tabuleiro extends JFrame {
 
     private void GameOver() {
         JOptionPane.showMessageDialog(this, "Gamer Over", "A", JOptionPane.INFORMATION_MESSAGE);
-        Reiniciar(); // chama o metodo de reiniciar 
+        pausar = (!pausar); // faz com que o jogo  pare
     }
 
     private void DificuldadeJogo() { // em andamento
         modo++; // incrementa o valor
-        
-        if (modo > 2) { // caso o valor seja maior que 3
+
+        if (modo > 3) { // caso o valor seja maior que 3
             modo = 1; // define o valor para 1 novamente
         }
         switch (modo) { // define o que vai estar escrito no modo de jogo
             case 1 -> dificuldade = "Sem Borda"; // se o modo for 1 define o que esta escrito para sem borda
 
             case 2 -> dificuldade = "Com Borda"; // se o modo for 2 define o que esta escrito para com borda
-
         }
 
         modeButton.setText(dificuldade); // atualiza o texto do botao com o modo
