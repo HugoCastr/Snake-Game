@@ -260,6 +260,7 @@ public class Tabuleiro extends JFrame {
     }
 
     private void Iniciar() {
+        pausar = true;
         ComecoDoJogo();
         new Thread(() -> {
             while (pausar) {
